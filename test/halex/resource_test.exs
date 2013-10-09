@@ -1,7 +1,7 @@
 defmodule Halex.Resource.Test do
   use Halex.Case
   alias Halex.Resource
-  alias Halex.Resource.Link
+  alias Halex.Link
 
   test "create a resource with self link" do
     order = Resource.new "/orders/123"
@@ -16,16 +16,22 @@ defmodule Halex.Resource.Test do
     assert "USD" == order.property "currency"
   end
 
-  test "set and get links" do
+  test "creates a link then maps" do
     order = Resource.new "/orders/123"
 
-    order = order.link "find", "/orders/{?id}", templated: true
-    assert Link.new(href: "/orders/{?id}", templated: true) == order.link :find
+    order = order.add_link "find", "/orders/{?id}", templated: true
+    assert Link.new("/orders/{?id}", templated: true) == order.link :find
 
-    order = order.link :next, "/orders/3", name: "hotdog"
-    assert Link.new(href: "/orders/3", name: "hotdog") == order.link "next"
+    order = order.add_link :next, "/orders/3", name: "hotdog"
+    assert Link.new("/orders/3", name: "hotdog") == order.link "next"
 
-    order = order.link :previus, "/orders/1"
-    assert Link.new(href: "/orders/1") == order.link "previus"
+    order = order.add_link :previus, "/orders/1"
+    assert Link.new("/orders/1") == order.link "previus"
+  end
+
+  test "maps the link to relation" do
+    order = Resource.new "/orders/123"
+    order = order.add_link :next, link = Link.new("/orders/1")
+    assert link == order.link :next
   end
 end

@@ -5,29 +5,38 @@ defmodule Halex.RelationMap do
   @type t     :: __MODULE__
   @type key   :: Atom.t
   @type item  :: Halex.Link.t
-  @type itens :: [item] | item
+  @type items :: [item] | item
 
   @spec new :: t
   def new, do: map()
 
   @spec new(Keyword.t) :: t
-  def new(itens) do
-    Enum.reduce(itens, map(), fn
+  def new(items) do
+    Enum.reduce(items, map(), fn
       {key, values}, acc -> add(key, values, acc)
     end)
   end
 
-  @spec add(key, itens, t) :: t
-  def add(relation, itens, map(relations: relations) = map) do
-    values = get(relations, relation) ++ List.wrap(itens)
-    map(relations: set(relations, relation, values))
+  @spec add(key, items, t) :: t
+  def add(relation, items, map(relations: relations) = map) do
+    values = get(relations, relation) ++ List.wrap(items)
+    map(map, relations: set(relations, relation, values))
   end
 
+  @spec relation(key, t) :: item
+  def relation(key, map(relations: relations)) do
+    one_or_more(get(relations, key))
+  end
+
+  @spec to_keywords(t) :: Keyword.t
   def to_keywords(map(relations: relations)) do
     lc {key, items} inlist relations do
-      {key, Enum.map(items, &(&1.to_keywords))}
+      {key, one_or_more(Enum.map(items, &(&1.to_keywords))) }
     end
   end
+
+  defp one_or_more([item]), do: item
+  defp one_or_more(items), do: items
 
   defp get(map, key, default // [])
 
