@@ -4,7 +4,7 @@ defmodule Halex.RelationMap do
 
   @type t     :: __MODULE__
   @type key   :: Atom.t
-  @type item  :: Halex.Link.t
+  @type item  :: Halex.Link.t | Halex.Resource.t
   @type items :: [item] | item
 
   @spec new :: t

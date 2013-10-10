@@ -14,6 +14,7 @@ defmodule Halex.Resource.Test do
     assert 30.0 == order.property :total
     order = order.property :currency, "USD"
     assert "USD" == order.property "currency"
+    assert 30.0  == order.property :total
   end
 
   test "creates a link then maps" do
@@ -43,5 +44,31 @@ defmodule Halex.Resource.Test do
     orders = orders.embed_resource :orders, order
 
     assert [order] == orders.embed "orders"
+  end
+
+  test "to_keywords with only links and properties" do
+    order = Resource.new("/orders").property(:shippedToday, 20)
+    hash  = [
+      _links: [ self: order.link(:self).to_keywords ],
+      _embedded: [],
+      shippedToday: 20
+    ]
+    assert hash == order.to_keywords
+  end
+
+  test "to_keywords with links, properties and embedded" do
+    order  = Resource.new("/orders/1").property(:status, "processing")
+    orders = Resource.new("/orders").property(:shippedToday, 20)
+    orders = orders.embed_resource :orders, order
+    hash  = [
+      _links: [ self: orders.link(:self).to_keywords ],
+      _embedded: [orders: [[
+        _links: [ self: order.link(:self).to_keywords ],
+        _embedded: [],
+        status: "processing"
+      ]]],
+      shippedToday: 20
+    ]
+    assert hash == orders.to_keywords
   end
 end
