@@ -34,4 +34,14 @@ defmodule Halex.Resource.Test do
     order = order.add_link :next, link = Link.new("/orders/1")
     assert link == order.link :next
   end
+
+  test "support to embed resources" do
+    order  = Resource.new "/orders/123"
+    order  = order.add_link :customer, "/customers/7809"
+
+    orders = Resource.new "/orders"
+    orders = orders.embed_resource :orders, order
+
+    assert [order] == orders.embed "orders"
+  end
 end

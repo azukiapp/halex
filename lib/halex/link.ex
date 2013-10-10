@@ -1,8 +1,11 @@
 defmodule Halex.Link do
 
   # Record fields and default values
-  @fields [ templated: true, type: nil, name: nil,
-    title: nil, href: nil, hreflang: nil]
+  @fields [
+    href: nil, templated: true, type: nil,
+    deprecation: nil, name: nil, profile: nil,
+    title: nil, hreflang: nil
+  ]
 
   # Record def
   Record.deffunctions(@fields, __ENV__)

@@ -2,9 +2,10 @@ defmodule Halex.Resource do
   alias Halex.Link
   alias Halex.RelationMap
 
-  defrecordp :resource, __MODULE__, [
+  defrecordp :record, __MODULE__, [
     properties: [],
-    links: RelationMap.new
+    links: RelationMap.new,
+    embedded: RelationMap.new.list!
   ]
 
   @type t :: __MODULE__
@@ -13,27 +14,35 @@ defmodule Halex.Resource do
 
   @spec new(href) :: t
   def new(self) do
-    resource(links: RelationMap.new(self: Link.new(self)))
+    record(links: RelationMap.new(self: Link.new(self)))
   end
 
-  def property(name, resource(properties: properties)) do
+  def property(name, record(properties: properties)) do
     dict_get(properties, name)
   end
 
-  def property(name, value, resource(properties: properties) = res) do
-    resource(res, properties: dict_put(properties, name, value))
+  def property(name, value, record(properties: properties) = res) do
+    record(res, properties: dict_put(properties, name, value))
   end
 
-  def link(relation, resource(links: links)) do
+  def link(relation, record(links: links)) do
     links.relation(relation)
   end
 
-  def add_link(relation, Link[] = link, resource(links: links) = resource) do
-    resource(resource, links: links.add(relation, link))
+  def embed(relation, record(embedded: embedded)) do
+    embedded.relation(relation)
   end
 
-  def add_link(relation, href, opts // [], resource() = resource) do
-    add_link(relation, Link.new(href, opts), resource)
+  def add_link(relation, Link[] = link, record(links: links) = record) do
+    record(record, links: links.add(relation, link))
+  end
+
+  def add_link(relation, href, opts // [], record() = record) do
+    add_link(relation, Link.new(href, opts), record)
+  end
+
+  def embed_resource(relation, resources, record(embedded: embedded) = record) do
+    record(record, embedded: embedded.add(relation, resources))
   end
 
   defp dict_put(dict, key, value) when is_bitstring(key) do

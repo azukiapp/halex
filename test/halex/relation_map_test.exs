@@ -46,6 +46,18 @@ defmodule Halex.RelationMap.Test do
     assert [ self: lk_to_keys(link)] == relations.to_keywords
   end
 
+  test "by default does not return a list for a single item" do
+    relmap = RelationMap.new(self: link = Link.new("/self"))
+    assert link == relmap.relation :self
+  end
+
+  test "allows force that is always a list" do
+    relmap = RelationMap.new(self: link = Link.new("/self"))
+    assert link == relmap.relation :self
+    relmap = relmap.list!
+    assert [link] == relmap.relation :self
+  end
+
   def lk_to_keys(links) when is_list(links) do
     lc link inlist links, do: link.to_keywords
   end
